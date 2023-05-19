@@ -47,6 +47,16 @@ async function run() {
     });
 
     // booking data
+    app.get('/booking',async(req,res)=>{
+      console.log(req.query.email)
+      let query = {}
+      if(req.query?.email){
+        query = {email:req.query.email}
+      }
+      const result = await bookingData.find(query).toArray()
+      res.send(result)
+    })
+
     app.post('/bookings',async(req,res)=>{
       const body = req.body;
       console.log(body);
