@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
 
     const newCollection = client.db('newChild').collection('child')
+    const bookingData = client.db('newChild').collection('bookings')
 
     app.get('/allData',async(req,res)=>{
       const result = await newCollection.find().toArray()
@@ -43,6 +44,15 @@ async function run() {
       const result = await newCollection.findOne(query,options)
       res.send(result)
     
+    });
+
+    // booking data
+    app.post('/bookings',async(req,res)=>{
+      const body = req.body;
+      console.log(body);
+      const result = await bookingData.insertOne(body)
+      res.send(result)
+
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
