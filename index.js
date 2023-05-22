@@ -47,8 +47,8 @@ async function run() {
     
     });
 
-    // booking data
-    app.get('/bookings',async(req,res)=>{
+    // altoys data
+    app.get('/alltoys',async(req,res)=>{
       console.log(req.query.email)
       let query = {};
       if(req.query?.email){
@@ -56,9 +56,16 @@ async function run() {
       }
       const result = await bookingData.find(query).toArray()
       res.send(result)
+    });
+
+    app.get('/alltoys',async(req,res)=>{
+      console.log(req.query.email)
+      const query = {_id: new ObjectId(id)}
+      const result = await bookingData.findOne(query)
+      res.send(result)
     })
 
-    app.post('/bookings',async(req,res)=>{
+    app.post('/alltoys',async(req,res)=>{
       const body = req.body;
       console.log(body);
       const result = await bookingData.insertOne(body)
@@ -66,14 +73,14 @@ async function run() {
 
     });
 
-    app.delete('/bookings/:id',async(req,res)=>{
+    app.delete('/alltoys/:id',async(req,res)=>{
       const id = req.params.id;
       const query = {_id:new ObjectId(id)}
       const result = await bookingData.deleteOne(query);
       res.send(result);
     });
 
-    app.patch('/bookings/:id', async (req, res) => {
+    app.patch('/alltoys/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updated = req.body;
