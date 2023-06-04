@@ -28,76 +28,65 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const newCollection = client.db('newChild').collection('child')
-    const bookingData = client.db('newChild').collection('bookings')
+    const alltoyCollection = client.db('brainToy').collection('allToy')
+    // const bookingData = client.db('newChild').collection('bookings')
 
-    app.get('/child',async(req,res)=>{
-      const cursor = newCollection.find()
-      const result = await cursor.toArray()
-      res.send(result);
-    })
-    app.get('/child/:id',async(req,res)=>{
-      const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
-      const options = {
-        projection: {  title: 1, price: 1,photo_url:1,service_id:1 },
-      };
-      const result = await newCollection.findOne(query,options)
-      res.send(result)
-    
-    });
 
-    // altoys data
-    app.get('/alltoys',async(req,res)=>{
-      console.log(req.query.email)
+    app.get('/allToy', async (req, res) => {
+      console.log('email',req.query.email)
       let query = {};
-      if(req.query?.email){
-        query = {email:req.query.email}
+      if(req.query?.email) {
+        query={ email: req.query.email }
       }
-      const result = await bookingData.find(query).toArray()
+      const result = await alltoyCollection.find(query).toArray()
+      res.send(result)
+
+    })
+
+
+    app.get('/alltoy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await alltoyCollection.findOne(query);
+      res.send(result)
+    })
+    
+
+    app.post('/allToy', async (req, res) => {
+      const add = req.body;
+      const result = await alltoyCollection.insertOne(add)
       res.send(result)
     });
 
-    app.get('/alltoys',async(req,res)=>{
-      console.log(req.query.email)
-      const query = {_id: new ObjectId(id)}
-      const result = await bookingData.findOne(query)
+    app.delete('/allToy/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await alltoyCollection.deleteOne(query)
       res.send(result)
     })
 
-    app.post('/alltoys',async(req,res)=>{
-      const body = req.body;
-      console.log(body);
-      const result = await bookingData.insertOne(body)
-      res.send(result)
-
-    });
-
-    app.delete('/alltoys/:id',async(req,res)=>{
+    app.put('/allToy/:id',async(req,res)=>{
       const id = req.params.id;
-      const query = {_id:new ObjectId(id)}
-      const result = await bookingData.deleteOne(query);
-      res.send(result);
-    });
-
-    app.patch('/alltoys/:id', async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const updated = req.body;
-      console.log(updated);
-      const updateDoc = {
-          $set: {
-              status: updated.status
-          },
-      };
-      const result = await bookingData.updateOne(filter,updateDoc)
+      const query = {_id:new ObjectId(id)};
+      const options = { upsert: true };
+      const updateToy = req.body;
+      const update = {
+        $set:{
+          price:updateToy.price,
+          quantity:updateToy.quantity,
+          description:updateToy.description
+        }        
+      }
+      const result = await alltoyCollection.updateOne(query,update,options)
       res.send(result)
-     
-  })
+    })
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    
+
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -106,10 +95,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send('server is ruuning')
+app.get('/', (req, res) => {
+  res.send('server is ruuning')
 });
 
-app.listen(port,()=>{
-    console.log(`server side is start,${port}`)
+app.listen(port, () => {
+  console.log(`server side is start,${port}`)
 })
